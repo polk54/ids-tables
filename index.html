@@ -3,529 +3,247 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>International Debt Statistics — Country Table (Source 6)</title>
-  <meta name="description" content="Rebuild of the IDS country table using the World Bank Data API (source=6), with a country selector and dynamic refresh." />
+  <title>IDS Country Table (Static JSON, Source 6 + WLD)</title>
+  <meta name="description" content="International Debt Statistics (World Bank, source=6) — static JSON build (via GitHub Actions + Python) using 4D API with counterpart-area=WLD. Frontend loads from /data/*.json (same-origin)." />
   <style>
-    :root {
-      --bg: #f7fafc;
-      --card: #ffffff;
-      --ink: #0b1220;
-      --muted: #5b667a;
-      --accent: #1b6ef3;
-      --accent-2: #0bb07b;
-      --border: #e3e8ef;
-      --warn: #ffb020;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      --sans: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-    }
-    html, body { height: 100%; }
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--ink);
-      font-family: var(--sans);
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-    header {
-      position: sticky; top: 0; z-index: 5;
-      background: #ffffffcc;
-      backdrop-filter: blur(6px);
-      border-bottom: 1px solid var(--border);
-    }
-    .wrap { max-width: 1200px; margin: 0 auto; padding: 16px 20px; }
-    h1 { font-size: 20px; margin: 0 0 6px; letter-spacing: .3px; }
-    .sub { color: var(--muted); font-size: 13px; }
-
-    .toolbar {
-      display: grid; grid-template-columns: 1fr auto auto; gap: 12px; align-items: center;
-      padding: 14px 0 6px;
-    }
-    .toolbar .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-    label { font-size: 12px; color: var(--muted); }
-    select, button, input[type="text"] {
-      background: var(--card);
-      color: var(--ink);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px 12px;
-      font-size: 14px;
-    }
-    select { min-width: 260px; }
-    button { cursor: pointer; }
-    button:disabled { opacity: .6; cursor: not-allowed; }
-
-    .pill { font-size: 11px; color: var(--ink); background: #132236; border: 1px solid #1f2e45; border-radius: 999px; padding: 6px 10px; }
-
-    .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; }
-    .note { font-size: 12px; color: var(--muted); padding: 10px 12px; border-top: 1px dashed var(--border); }
-
-    .table-wrap {
-      margin: 14px 0 24px; overflow: auto; border-radius: 14px; border: 1px solid var(--border);
-    }
-    table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; }
-    thead th {
-      position: sticky; top: 0; z-index: 2; background: #f3f6fb; color: #3b465a;
-      font-weight: 600; text-align: right; padding: 12px 10px; border-bottom: 1px solid var(--border);
-    }
-    thead th:first-child { text-align: left; }
-    tbody td, tbody th {
-      padding: 10px; border-bottom: 1px solid var(--border); text-align: right; white-space: nowrap;
-    }
-    tbody th { text-align: left; font-weight: 500; }
-
-    tbody tr:nth-child(2n) td, tbody tr:nth-child(2n) th { background: #f9fbfe; }
-    tbody tr:hover td, tbody tr:hover th { background: #eef4ff; }
-
-    .group-row th { background: #eef4ff; color: var(--accent); font-weight: 700; border-top: 1px solid var(--border); position: sticky; left: 0; z-index: 1; }
-
-    .sticky-first {
-      position: sticky; left: 0; background: inherit; z-index: 1; max-width: 360px; min-width: 260px;
-    }
-
-    .badge { font-size: 10px; color: var(--muted); border: 1px solid var(--border); border-radius: 6px; padding: 2px 6px; margin-left: 6px; }
-
-    .mono { font-family: var(--mono); font-size: 12px; color: var(--muted); }
-
-    .footer { color: var(--muted); font-size: 12px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
-    .footer a { color: var(--accent); text-decoration: none; }
-
-    .spinner { display: inline-flex; gap: 10px; align-items: center; color: var(--muted); }
-    .spinner:before { content: ""; width: 14px; height: 14px; border: 2px solid var(--muted); border-top-color: transparent; border-radius: 50%; display: inline-block; animation: spin 1s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg);} }
-
-    .err { color: #ff9884; font-size: 13px; background: #2a1416; border: 1px solid #51252a; padding: 10px 12px; border-radius: 10px; }
-
-    details.diag { margin: 18px 0; }
-    details.diag summary { cursor: pointer; color: var(--accent); }
-    .testpass { color: #72d572; }
-    .testfail { color: #ff9884; }
-    pre.code { background: #f6f8fb; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; overflow: auto; }
+    :root{ --bg:#f7fafc; --card:#ffffff; --ink:#0b1220; --muted:#5b667a; --accent:#1b6ef3; --accent2:#0bb07b; --border:#e3e8ef; --mono:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; --sans:Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; }
+    html,body{height:100%}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans)}
+    header{position:sticky;top:0;z-index:5;background:#ffffffcc;backdrop-filter:blur(6px);border-bottom:1px solid var(--border)}
+    .wrap{max-width:1200px;margin:0 auto;padding:16px 20px}
+    h1{font-size:20px;margin:0 0 6px}
+    .sub{color:var(--muted);font-size:13px}
+    .toolbar{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;padding:14px 0 6px}
+    .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    label{font-size:12px;color:var(--muted)}
+    select,button{background:var(--card);color:var(--ink);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:14px}
+    select{min-width:280px}
+    button{cursor:pointer}
+    button:disabled{opacity:.6;cursor:not-allowed}
+    .pill{font-size:11px;color:var(--ink);background:#eef4ff;border:1px solid #d9e2ff;border-radius:999px;padding:6px 10px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px}
+    .note{font-size:12px;color:var(--muted);padding:10px 12px;border-top:1px dashed var(--border)}
+    .table-wrap{margin:14px 0 24px;overflow:auto;border-radius:14px;border:1px solid var(--border)}
+    table{width:100%;border-collapse:separate;border-spacing:0;font-size:13px}
+    thead th{position:sticky;top:0;z-index:2;background:#f3f6fb;color:#3b465a;font-weight:600;text-align:right;padding:12px 10px;border-bottom:1px solid var(--border)}
+    thead th:first-child{text-align:left}
+    tbody td,tbody th{padding:10px;border-bottom:1px solid var(--border);text-align:right;white-space:nowrap}
+    tbody th{text-align:left;font-weight:500}
+    tbody tr:nth-child(2n) td,tbody tr:nth-child(2n) th{background:#f9fbfe}
+    tbody tr:hover td,tbody tr:hover th{background:#eef4ff}
+    .group-row th{background:#eef4ff;color:var(--accent);font-weight:700;border-top:1px solid var(--border);position:sticky;left:0;z-index:1}
+    .sticky-first{position:sticky;left:0;background:inherit;z-index:1;max-width:420px;min-width:260px}
+    .badge{font-size:10px;color:#3b465a;border:1px solid var(--border);border-radius:6px;padding:2px 6px;margin-left:6px}
+    .mono{font-family:var(--mono);font-size:12px;color:var(--muted)}
+    .footer{color:var(--muted);font-size:12px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+    .footer a{color:var(--accent);text-decoration:none}
+    .err{color:#a82b2b;font-size:13px;background:#fff2f2;border:1px solid #ffdede;padding:10px 12px;border-radius:10px}
+    details.diag{margin:18px 0}
+    details.diag summary{cursor:pointer;color:var(--accent)}
+    pre.code{background:#f6f8fb;padding:10px 12px;border:1px solid var(--border);border-radius:10px;overflow:auto}
+    .pass{color:#0f8a1a}
+    .fail{color:#a82b2b}
   </style>
 </head>
 <body>
-  <header>
-    <div class="wrap">
-      <h1>International Debt Statistics — Country Table</h1>
-      <div class="sub">Powered by the World Bank Data API (<span class="mono">source=6</span>). Select a country to refresh the table.</div>
-      <div class="toolbar">
-        <div class="controls">
-          <label for="countrySelect">Country</label>
-          <select id="countrySelect" aria-label="Select a country"></select>
-          <span id="status" class="pill" aria-live="polite">Loading countries…</span>
-        </div>
-        <button id="downloadCsvBtn" title="Download table as CSV" disabled>Download CSV</button>
-        <button id="copyCsvBtn" title="Copy CSV to clipboard" disabled>Copy CSV</button>
+<header>
+  <div class="wrap">
+    <h1>International Debt Statistics — Country Table</h1>
+    <div class="sub">Static build (GitHub Actions + Python) from World Bank Data API (v2, <span class="mono">source=6</span>) using 4D with <span class="mono">counterpart-area=WLD</span>. The page reads same-origin JSON from <span class="mono">/data</span>.</div>
+    <div class="toolbar">
+      <div class="controls">
+        <label for="countrySelect">Country</label>
+        <select id="countrySelect" aria-label="Select a country"></select>
+        <span id="status" class="pill" aria-live="polite">Loading local data…</span>
       </div>
+      <button id="downloadCsvBtn" disabled>Download CSV</button>
+      <button id="copyCsvBtn" disabled>Copy CSV</button>
     </div>
-  </header>
+  </div>
+</header>
 
-  <main class="wrap">
-    <div id="alert" role="status" style="margin: 10px 0 0 0;"></div>
+<main class="wrap">
+  <div id="alert" role="status" style="margin-top:10px"></div>
+  <div class="table-wrap card">
+    <table id="idsTable" aria-describedby="tableNote">
+      <thead id="thead"></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+    <div class="note" id="tableNote">$ millions unless noted. Missing values shown as —. Source: World Bank, <em>International Debt Statistics</em> (IDS), API <span class="mono">source=6</span> (counterpart-area=WLD), materialized to static JSON by GitHub Actions.</div>
+  </div>
 
-    <div class="table-wrap card" id="tableCard">
-      <table id="idsTable" aria-describedby="tableNote">
-        <thead id="thead"></thead>
-        <tbody id="tbody"></tbody>
-      </table>
-      <div class="note" id="tableNote">$ millions, unless otherwise indicated. Missing values shown as —. Source: World Bank, <em>International Debt Statistics</em> (IDS), API <span class="mono">source=6</span>.</div>
+  <details class="diag">
+    <summary>Diagnostics & Tests</summary>
+    <div style="margin:10px 0 14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <button id="btnPing">Check local JSON</button>
+      <button id="btnRunTests">Run unit tests</button>
+      <span id="testStatus" class="pill">Idle</span>
     </div>
+    <div class="mono" id="diagOut"></div>
+    <pre class="code" id="lastReq" aria-live="polite"></pre>
+    <pre class="code" id="recentReqs"></pre>
+  </details>
 
-    <details class="diag">
-      <summary>Diagnostics & Tests</summary>
-      <div style="margin:10px 0 14px;">
-        <button id="btnPing">Ping API</button>
-        <button id="btnRunTests">Run unit tests</button>
-        <span id="testStatus" class="pill" style="margin-left:8px;">Idle</span>
-      </div>
-      <div id="diagOut" class="mono"></div>
-      <pre id="lastReq" class="code" aria-live="polite"></pre>
-    </details>
-
-    <div class="footer">
-      <div>📘 Data license: <a href="https://datacatalog.worldbank.org/public-licenses#cc-by" target="_blank" rel="noreferrer noopener">World Bank Open Data (CC BY 4.0)</a></div>
-      <div>🔗 API docs: <a href="https://worldbank.github.io/debt-data/api-guide/ids-api-guide-python-1.html" target="_blank" rel="noreferrer noopener">IDS API guide</a></div>
-    </div>
-  </main>
+  <div class="footer">
+    <div>📘 License: <a target="_blank" rel="noreferrer noopener" href="https://datacatalog.worldbank.org/public-licenses#cc-by">World Bank Open Data (CC BY 4.0)</a></div>
+    <div>🔧 Built nightly by GitHub Actions</div>
+  </div>
+</main>
 
 <script>
-  const WB_API = 'https://api.worldbank.org/v2';
+const YEARS_TO_SHOW = 11; // per your preference
+const DATA_BASE = './data'; // must exist on GitHub Pages: /data/countries.json and /data/{ISO3}.json
 
-  // Configure indicator groups and series codes (IDS source=6)
-  // You can add or remove rows easily by editing this config.
-  const INDICATOR_GROUPS = [
-    {
-      title: '1. Summary external debt data',
-      rows: [
-        { code: 'DT.DOD.DECT.CD', name: 'External debt stocks, total (DOD, current US$)', unit: 'USD_M' },
-        { code: 'DT.DOD.DLXF.CD', name: 'Long-term external debt (DOD, current US$)', unit: 'USD_M' },
-        { code: 'DT.DOD.DPPG.CD', name: 'Public and publicly guaranteed (DOD, current US$)', unit: 'USD_M' },
-        { code: 'DT.DOD.DPNG.CD', name: 'Private nonguaranteed (DOD, current US$)', unit: 'USD_M' },
-        { code: 'DT.DOD.DIMF.CD', name: 'Use of IMF credit and SDR allocations (DOD, current US$)', unit: 'USD_M' },
-        { code: 'DT.DOD.DSTC.CD', name: 'Short-term external debt (DOD, current US$)', unit: 'USD_M' }
-      ]
-    },
-    {
-      title: '2. Debt service & flows',
-      rows: [
-        { code: 'DT.TDS.DECT.CD', name: 'Debt service on external debt, total (TDS, current US$)', unit: 'USD_M' },
-        { code: 'DT.AMT.DECT.CD', name: 'Principal repayments on external debt, total (AMT, current US$)', unit: 'USD_M' },
-        { code: 'DT.INT.DECT.CD', name: 'Interest payments on external debt, total (INT, current US$)', unit: 'USD_M' },
-        { code: 'DT.DIS.DLXF.CD', name: 'Disbursements on external debt, long-term (DIS, current US$)', unit: 'USD_M' }
-      ]
-    },
-    {
-      title: '3. Ratios',
-      rows: [
-        { code: 'DT.DOD.DECT.GN.ZS', name: 'External debt stocks (% of GNI)', unit: 'PCT1' },
-        { code: 'DT.TDS.DECT.EX.ZS', name: 'Total debt service (% of exports of goods, services and primary income)', unit: 'PCT1' },
-        { code: 'DT.INT.DECT.EX.ZS', name: 'Interest payments on external debt (% of exports of goods, services and primary income)', unit: 'PCT1' }
-      ]
-    }
-  ];
+// Indicators (mirrors our Python builder). All values are Source-6 4D with counterpart-area=WLD.
+const INDICATOR_GROUPS = [
+  { title: '1. Summary external debt data', rows: [
+    { code: 'DT.DOD.DECT.CD', name: 'External debt stocks, total (DOD, current US$)', unit: 'USD_M' },
+    { code: 'DT.DOD.DLXF.CD', name: 'Long-term external debt (DOD, current US$)', unit: 'USD_M' },
+    { code: 'DT.DOD.DPPG.CD', name: 'Public and publicly guaranteed (DOD, current US$)', unit: 'USD_M' },
+    { code: 'DT.DOD.DPNG.CD', name: 'Private nonguaranteed (DOD, current US$)', unit: 'USD_M' },
+    { code: 'DT.DOD.DIMF.CD', name: 'Use of IMF credit and SDR allocations (DOD, current US$)', unit: 'USD_M' },
+    { code: 'DT.DOD.DSTC.CD', name: 'Short-term external debt (DOD, current US$)', unit: 'USD_M' },
+  ]},
+  { title: '2. Debt service & flows', rows: [
+    { code: 'DT.TDS.DECT.CD', name: 'Debt service on external debt, total (TDS, current US$)', unit: 'USD_M' },
+    { code: 'DT.AMT.DECT.CD', name: 'Principal repayments on external debt, total (AMT, current US$)', unit: 'USD_M' },
+    { code: 'DT.INT.DECT.CD', name: 'Interest payments on external debt, total (INT, current US$)', unit: 'USD_M' },
+    { code: 'DT.DIS.DLXF.CD', name: 'Disbursements on external debt, long-term (DIS, current US$)', unit: 'USD_M' },
+  ]},
+  { title: '3. Ratios', rows: [
+    { code: 'DT.DOD.DECT.GN.ZS', name: 'External debt stocks (% of GNI)', unit: 'PCT1' },
+    { code: 'DT.TDS.DECT.EX.ZS', name: 'Total debt service (% of exports of goods, services and primary income)', unit: 'PCT1' },
+    { code: 'DT.INT.DECT.EX.ZS', name: 'Interest payments on external debt (% of exports of goods, services and primary income)', unit: 'PCT1' },
+  ]},
+];
 
-  const YEARS_TO_SHOW = 11; // show last N years available
+// --- Utilities & diagnostics ---
+const els = {
+  select: document.getElementById('countrySelect'),
+  thead: document.getElementById('thead'),
+  tbody: document.getElementById('tbody'),
+  status: document.getElementById('status'),
+  alert: document.getElementById('alert'),
+  copyCsvBtn: document.getElementById('copyCsvBtn'),
+  downloadCsvBtn: document.getElementById('downloadCsvBtn'),
+  btnPing: document.getElementById('btnPing'),
+  btnRunTests: document.getElementById('btnRunTests'),
+  testStatus: document.getElementById('testStatus'),
+  diagOut: document.getElementById('diagOut'),
+  lastReq: document.getElementById('lastReq'),
+  recentReqs: document.getElementById('recentReqs'),
+};
 
-  const els = {
-    select: document.getElementById('countrySelect'),
-    thead: document.getElementById('thead'),
-    tbody: document.getElementById('tbody'),
-    status: document.getElementById('status'),
-    alert: document.getElementById('alert'),
-    copyCsvBtn: document.getElementById('copyCsvBtn'),
-    downloadCsvBtn: document.getElementById('downloadCsvBtn'),
-    btnPing: document.getElementById('btnPing'),
-    btnRunTests: document.getElementById('btnRunTests'),
-    testStatus: document.getElementById('testStatus'),
-    diagOut: document.getElementById('diagOut'),
-    lastReq: document.getElementById('lastReq'),
-  };
+const recent = [];
+function logReq(url){ recent.push(url); if(recent.length>12) recent.shift(); els.recentReqs.textContent = recent.map(u=>`GET ${u}`).join('\n'); els.lastReq.textContent = JSON.stringify({ url }, null, 2); }
+function setStatus(t){ if(!t){ els.status.hidden=true; } else { els.status.hidden=false; els.status.textContent=t; } }
+function showError(msg){ els.alert.innerHTML = `<div class="err">${msg}</div>`; }
+function clearError(){ els.alert.textContent=''; }
 
-  function setStatus(text) {
-    if (!text) { els.status.hidden = true; return; }
-    els.status.hidden = false;
-    els.status.textContent = text;
-  }
-
-  function showError(msg) {
-    els.alert.innerHTML = `<div class="err">${msg}</div>`;
-  }
-
-  function clearError() { els.alert.textContent = ''; }
-
-  function logLastRequest(url, extra = {}) {
-    const payload = { url, ...extra };
-    els.lastReq.textContent = JSON.stringify(payload, null, 2);
-  }
-
-  async function getJSON(url) {
-    logLastRequest(url);
-    const res = await fetch(url, {
-      headers: { 'Accept': 'application/json' },
-      cache: 'no-store',
-      mode: 'cors',
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
-  }
-
-  async function loadCountries() {
-    setStatus('Loading countries…');
-    const primaryUrl = `${WB_API}/sources/6/country?format=json&per_page=500`;
-    const fallbackUrl = `${WB_API}/country?format=json&per_page=500`;
-    let data;
-    try {
-      data = await getJSON(primaryUrl);
-    } catch (e) {
-      console.warn('Primary country load failed, trying fallback', e);
-      try {
-        data = await getJSON(fallbackUrl);
-      } catch (e2) {
-        throw new Error('Failed to fetch country list');
-      }
-    }
-    let rows = data?.[1] || [];
-    // Keep only DRS debtor countries (LIC, LMC, UMC) and exclude aggregates (region.id === 'NA')
-    rows = rows.filter(c => {
-      const inc = c?.incomeLevel?.id;
-      const reg = c?.region?.id;
-      return (inc === 'LIC' || inc === 'LMC' || inc === 'UMC') && reg && reg !== 'NA';
-    });
-    rows.sort((a, b) => a.name.localeCompare(b.name));
-    els.select.innerHTML = rows.map(c => `<option value="${c.id}">${c.name} (${c.id})</option>`).join('');
-    setStatus('');
-    const defFromQuery = new URLSearchParams(location.search).get('country');
-    const def = defFromQuery || rows.find(c => c.id === 'AFG')?.id || rows[0]?.id;
-    if (def) { els.select.value = def; }
-  }
-
-  function numberFmt(v, unit) {
-    if (v === null || v === undefined || Number.isNaN(v)) return '—';
-    if (unit === 'USD_M') return (v / 1e6).toLocaleString(undefined, { maximumFractionDigits: 1 });
-    if (unit === 'PCT1') return Number(v).toLocaleString(undefined, { maximumFractionDigits: 1 });
-    return Number(v).toLocaleString();
-  }
-
-  function buildYears(latestYear) {
-    const end = parseInt(latestYear, 10);
-    const years = [];
-    for (let y = end; y > end - YEARS_TO_SHOW; y--) years.push(String(y));
-    return years.reverse();
-  }
-
-  async function getLatestYear(country) {
-    const url = `${WB_API}/country/${country}/indicator/DT.DOD.DECT.CD?format=json&source=6&mrv=1`;
-    const data = await getJSON(url);
-    const last = data?.[1]?.[0]?.date;
-    return last || String(new Date().getFullYear() - 2);
-  }
-
-  async function fetchSeries(country, code, yearStart, yearEnd) {
-    const url = `${WB_API}/country/${country}/indicator/${code}?format=json&source=6&date=${yearStart}:${yearEnd}&per_page=70`;
-    const data = await getJSON(url);
-    const rows = data?.[1] || [];
-    const map = new Map();
-    for (const r of rows) {
-      if (r.value !== null) map.set(String(r.date), Number(r.value));
-    }
-    return map;
-  }
-
-  function renderHeader(years) {
-    els.thead.innerHTML = '';
-    const tr = document.createElement('tr');
-    const th0 = document.createElement('th'); th0.className = 'sticky-first'; th0.textContent = 'Indicator'; tr.appendChild(th0);
-    years.forEach(y => { const th = document.createElement('th'); th.textContent = y; tr.appendChild(th); });
-    els.thead.appendChild(tr);
-  }
-
-  function seriesLink(code) {
-    const safe = encodeURIComponent(code);
-    return `https://data.worldbank.org/indicator/${safe}`;
-  }
-
-  async function renderTable(country) {
-    clearError();
-    els.tbody.innerHTML = '';
-    els.copyCsvBtn.disabled = true;
-    els.downloadCsvBtn.disabled = true;
-
-    setStatus('Fetching data…');
-    const latestYear = await getLatestYear(country);
-    const years = buildYears(latestYear);
-    const yStart = years[0];
-    const yEnd = years[years.length - 1];
-
-    renderHeader(years);
-
-    const tasks = [];
-    for (const group of INDICATOR_GROUPS) {
-      for (const r of group.rows) {
-        tasks.push(fetchSeriesRobust(country, r.code, yStart, yEnd).then(map => ({ code: r.code, unit: r.unit, map, name: r.name })));
-      }
-    }
-    let results;
-    try {
-      results = await Promise.all(tasks);
-    } catch (e) {
-      showError(`Could not load data. ${e.message}`);
-      setStatus('');
-      return;
-    }
-
-    const seriesMaps = Object.fromEntries(results.map(o => [o.code, o]));
-
-    const frag = document.createDocumentFragment();
-    for (const group of INDICATOR_GROUPS) {
-      const trg = document.createElement('tr'); trg.className = 'group-row';
-      const thg = document.createElement('th'); thg.colSpan = years.length + 1; thg.textContent = group.title; trg.appendChild(thg);
-      frag.appendChild(trg);
-
-      for (const row of group.rows) {
-        const tr = document.createElement('tr');
-        const th = document.createElement('th'); th.className = 'sticky-first';
-        th.innerHTML = `${row.name} <a class="badge" href="${seriesLink(row.code)}" target="_blank" rel="noopener">${row.code}</a>`;
-        tr.appendChild(th);
-        const { map } = seriesMaps[row.code] || { map: new Map() };
-        years.forEach(y => {
-          const td = document.createElement('td');
-          td.textContent = numberFmt(map.get(y), row.unit);
-          tr.appendChild(td);
-        });
-        frag.appendChild(tr);
-      }
-    }
-
-    els.tbody.appendChild(frag);
-    setStatus(`Done · ${years[0]}–${years[years.length-1]}`);
-
-    els.copyCsvBtn.disabled = false;
-    els.downloadCsvBtn.disabled = false;
-
-    els.copyCsvBtn.onclick = () => copyCsv(years);
-    els.downloadCsvBtn.onclick = () => downloadCsv(years);
-  }
-
-  function toCsv(years) {
-    const rows = [];
-    rows.push(['Indicator', ...years]);
-
-    const trs = Array.from(els.tbody.querySelectorAll('tr'));
-    for (const tr of trs) {
-      if (tr.classList.contains('group-row')) {
-        rows.push([tr.textContent.trim()]);
-        continue;
-      }
-      const cells = Array.from(tr.children);
-      const name = cells[0].textContent.replace(/\s*DT\.[A-Z0-9_.-]+\s*$/, '').trim();
-      const vals = cells.slice(1).map(td => td.textContent.trim());
-      rows.push([name, ...vals]);
-    }
-    return rows.map(r => r.map(cell => /[",\n]/.test(cell) ? '"' + cell.replaceAll('"','""') + '"' : cell).join(',' )).join('\n');
-  }
-
-  async function copyCsv(years) {
-    const csv = toCsv(years);
-    await navigator.clipboard.writeText(csv);
-    setStatus('CSV copied');
-    setTimeout(() => setStatus(''), 1200);
-  }
-
-  function downloadCsv(years) {
-    const csv = toCsv(years);
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    const countryLabel = els.select.options[els.select.selectedIndex]?.text?.replace(/\s+\(.+\)$/,'') || 'country';
-    a.href = url; a.download = `IDS_country_table_${countryLabel.replace(/\s+/g,'_')}.csv`;
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 2000);
-  }
-
-  async function fetchSeries(country, code, yearStart, yearEnd) {
-  // Try IDS 4D path first
-  const url4D = `${WB_API}/sources/6/country/${country}/series/${code}/time/${yearStart}:${yearEnd}?format=json&per_page=500`;
-  try {
-    const jd = await getJSON(url4D);
-    const rows = jd?.source?.data || [];
-    const map = new Map();
-    for (const r of rows) {
-      const vars = r?.variable || [];
-      const y = String(vars?.[1]?.value || '');
-      const v = r?.value;
-      if (y && y.length === 4 && !isNaN(+y) && v !== null && v !== undefined) map.set(y, Number(v));
-    }
-    if (map.size) return map;
-  } catch (e) {
-    console.warn('4D fetch error for', code, e);
-  }
-  // Fallback to standard indicator API
-  return await fetchSeriesIndicator(country, code, yearStart, yearEnd);
+async function getLocalJson(path){
+  const url = `${DATA_BASE}/${path}`; logReq(url);
+  const res = await fetch(url, { cache: 'no-store' });
+  if(!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+  return res.json();
 }
 
-async function fetchSeriesIndicator(country, code, yearStart, yearEnd) {
-  const encodedCode = encodeURIComponent(code);
-  const url = `${WB_API}/country/${country}/indicator/${encodedCode}?format=json&source=6&date=${yearStart}:${yearEnd}&per_page=1000`;
-  const data = await getJSON(url);
-  const rows = data?.[1] || [];
-  const map = new Map();
-  for (const r of rows) { if (r.value !== null) map.set(String(r.date), Number(r.value)); }
-  return map;
+// --- Country list from static JSON ---
+async function loadCountries(){
+  setStatus('Loading local data…');
+  let rows = [];
+  try{ rows = await getLocalJson('countries.json'); }catch(e){ showError('countries.json not found in /data. Run the GitHub Action to build data.'); throw e; }
+  if(!Array.isArray(rows) || !rows.length) { showError('countries.json is empty.'); throw new Error('Empty countries.json'); }
+  rows.sort((a,b)=> (a.name||'').localeCompare(b.name||''));
+  els.select.innerHTML = rows.map(c=>`<option value="${c.id}">${c.name} (${c.id})</option>`).join('');
+  setStatus('');
+  const def = new URLSearchParams(location.search).get('country') || rows.find(c=>c.id==='AFG')?.id || rows[0]?.id;
+  if(def) els.select.value = def;
 }
 
-async function fetchSeriesRobust(country, code, yearStart, yearEnd) {
-  const encodedCode = encodeURIComponent(code);
-  // 1) Try IDS 4D with counterpart-area/WLD (totals)
-  const url4dWLD = `${WB_API}/sources/6/country/${country}/series/${encodedCode}/counterpart-area/WLD/time/yr${yearStart}:yr${yearEnd}?format=json&per_page=2000`;
-  try {
-    const jd = await getJSON(url4dWLD);
-    const rows = jd?.source?.data || [];
-    const map = new Map();
-    for (const r of rows) {
-      const vars = r?.variable || [];
-      const hint = (v) => String(v?.id || v?.concept || '').toLowerCase();
-      const t = (vars.find(v => hint(v).includes('time')) || vars[1] || {}).value;
-      const y = t ? String(t) : '';
-      const v = r?.value;
-      if (y && y.length === 4 && !isNaN(+y) && v !== null && v !== undefined) map.set(y, Number(v));
-    }
-    if (map.size) return map;
-  } catch (e) {
-    console.warn('4D WLD fetch error for', code, e);
-  }
-  // 2) Try IDS 4D without counterpart (for series that don't have that dimension)
-  const url4d = `${WB_API}/sources/6/country/${country}/series/${encodedCode}/time/yr${yearStart}:yr${yearEnd}?format=json&per_page=2000`;
-  try {
-    const jd = await getJSON(url4d);
-    const rows = jd?.source?.data || [];
-    const map = new Map();
-    for (const r of rows) {
-      const vars = r?.variable || [];
-      const hint = (v) => String(v?.id || v?.concept || '').toLowerCase();
-      const t = (vars.find(v => hint(v).includes('time')) || vars[1] || {}).value;
-      const y = t ? String(t) : '';
-      const v = r?.value;
-      if (y && y.length === 4 && !isNaN(+y) && v !== null && v !== undefined) map.set(y, Number(v));
-    }
-    if (map.size) return map;
-  } catch (e2) {
-    console.warn('4D fetch error for', code, e2);
-  }
-  // 3) Fallback to standard indicator endpoint
-  return await fetchSeriesIndicator(country, code, yearStart, yearEnd);
+function numberFmt(v, unit){ if(v==null||Number.isNaN(v)) return '—'; if(unit==='USD_M') return (v/1e6).toLocaleString(undefined,{maximumFractionDigits:1}); if(unit==='PCT1') return Number(v).toLocaleString(undefined,{maximumFractionDigits:1}); return Number(v).toLocaleString(); }
+
+// --- UI render from local country JSON ---
+function renderHeader(years){
+  els.thead.innerHTML='';
+  const tr=document.createElement('tr');
+  const th0=document.createElement('th'); th0.className='sticky-first'; th0.textContent='Indicator'; tr.appendChild(th0);
+  years.forEach(y=>{ const th=document.createElement('th'); th.textContent=y; tr.appendChild(th); });
+  els.thead.appendChild(tr);
 }
 
-// Wire up
-  els.select.addEventListener('change', () => renderTable(els.select.value));
-  els.btnPing.addEventListener('click', async () => {
-    els.diagOut && (els.diagOut.textContent = '');
-    try {
-      const pingUrl = `${WB_API}/sources/6?format=json`;
-      const json = await getJSON(pingUrl);
-      els.diagOut.textContent = 'Ping OK: ' + (json?.[0]?.lastupdated || 'response received');
-    } catch (e) {
-      els.diagOut.textContent = 'Ping failed: ' + e.message;
+async function renderTable(country){
+  clearError(); els.tbody.innerHTML=''; els.copyCsvBtn.disabled=true; els.downloadCsvBtn.disabled=true; setStatus('Loading country JSON…');
+  const data = await getLocalJson(`${country}.json`);
+  const years = Array.isArray(data?.years) && data.years.length ? data.years.map(String) : [];
+  if(!years.length){ showError(`No years in ${country}.json`); setStatus(''); return; }
+  renderHeader(years);
+
+  const series = data?.series || {}; const frag = document.createDocumentFragment();
+  for(const group of INDICATOR_GROUPS){
+    const trg=document.createElement('tr'); trg.className='group-row';
+    const thg=document.createElement('th'); thg.colSpan=years.length+1; thg.textContent=group.title; trg.appendChild(thg); frag.appendChild(trg);
+    for(const row of group.rows){
+      const tr=document.createElement('tr');
+      const th=document.createElement('th'); th.className='sticky-first'; th.innerHTML = `${row.name} <span class="badge">${row.code}</span>`; tr.appendChild(th);
+      const m = series[row.code] || {}; // object: { "YYYY": value }
+      years.forEach(y=>{ const td=document.createElement('td'); const v = (y in m)? Number(m[y]) : null; td.textContent = numberFmt(v, row.unit); tr.appendChild(td); });
+      frag.appendChild(tr);
     }
-  });
-
-  // --- Simple unit tests (added) ---
-  function runTests() {
-    const results = [];
-    const num = (s) => typeof s === 'string' ? parseFloat(s.replace(/[^0-9+\-\.]/g, '')) : s;
-    const assert = (name, cond, got) => results.push({ name, pass: !!cond, got });
-
-    // numberFmt tests
-    assert('numberFmt USD_M converts to millions, 1 decimal', Math.abs(num(numberFmt(123456789, 'USD_M')) - 123.5) < 0.1, numberFmt(123456789, 'USD_M'));
-    assert('numberFmt PCT1 keeps 1 decimal', numberFmt(12.34, 'PCT1').match(/12[\.,]3/), numberFmt(12.34, 'PCT1'));
-    assert('numberFmt null → em dash', numberFmt(null, 'USD_M') === '—', numberFmt(null, 'USD_M'));
-
-    // buildYears tests
-    const years = buildYears('2020');
-    assert('buildYears length', years.length === YEARS_TO_SHOW, years.join(','));
-    assert('buildYears bounds', years[0] === String(2020 - YEARS_TO_SHOW + 1) && years[years.length-1] === '2020', years.join(','));
-
-    // Report
-    const pass = results.filter(r => r.pass).length;
-    const fail = results.length - pass;
-    els.testStatus.textContent = `Tests: ${pass} passed, ${fail} failed`;
-    els.testStatus.className = 'pill ' + (fail ? 'testfail' : 'testpass');
-    els.diagOut.innerHTML = results.map(r => `${r.pass ? '✅' : '❌'} ${r.name} ${r.pass ? '' : `→ got: ${r.got}`}`).join('\n');
   }
-  els.btnRunTests.addEventListener('click', runTests);
+  els.tbody.appendChild(frag);
+  setStatus(`Done · ${years[0]}–${years[years.length-1]}`);
+  els.copyCsvBtn.disabled=false; els.downloadCsvBtn.disabled=false;
+  els.copyCsvBtn.onclick = ()=> copyCsv(years);
+  els.downloadCsvBtn.onclick = ()=> downloadCsv(years);
+}
 
-  // Init
-  (async function init() {
-    try {
-      await loadCountries();
-      const c = els.select.value || 'AFG';
-      await renderTable(c);
-      // auto-run tests once UI is ready
-      runTests();
-    } catch (e) {
-      showError('Failed to initialize. ' + e.message);
-      setStatus('');
-    }
-  })();
+function toCsv(years){
+  const rows=[]; rows.push(['Indicator',...years]);
+  const trs=Array.from(els.tbody.querySelectorAll('tr'));
+  for(const tr of trs){ if(tr.classList.contains('group-row')){ rows.push([tr.textContent.trim()]); continue; }
+    const cells=Array.from(tr.children); const name=cells[0].textContent.replace(/\s*DT\.[A-Z0-9_.-]+\s*$/,'').trim(); const vals=cells.slice(1).map(td=>td.textContent.trim()); rows.push([name,...vals]); }
+  return rows.map(r=>r.map(c=>(/[",\n]/.test(c)? '"'+c.replaceAll('"','""')+'"': c)).join(',')).join('\n');
+}
+async function copyCsv(years){ const csv=toCsv(years); await navigator.clipboard.writeText(csv); setStatus('CSV copied'); setTimeout(()=>setStatus(''),1200); }
+function downloadCsv(years){ const csv=toCsv(years); const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); const label=els.select.options[els.select.selectedIndex]?.text?.replace(/\s+\(.+\)$/,'')||'country'; a.href=url; a.download=`IDS_country_table_${label.replace(/\s+/g,'_')}.csv`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1500); }
+
+// Diagnostics
+els.btnPing.addEventListener('click', async ()=>{
+  els.diagOut.textContent='';
+  try{
+    const list = await getLocalJson('countries.json');
+    const c = els.select.value || (Array.isArray(list)&&list[0]?.id) || 'AFG';
+    await getLocalJson(`${c}.json`);
+    els.diagOut.textContent='Local JSON OK: countries.json and '+c+'.json present.';
+  }catch(e){ els.diagOut.textContent='Local JSON check failed: '+e.message; }
+});
+
+function runTests(){
+  const results=[]; const n=(s)=> typeof s==='string'? parseFloat(s.replace(/[^0-9+\-\.]/g,'')): s; const assert=(name,cond,got)=>results.push({name,pass:!!cond,got});
+  // existing tests
+  assert('numberFmt USD_M', Math.abs(n(numberFmt(123456789,'USD_M'))-123.5)<0.11, numberFmt(123456789,'USD_M'));
+  assert('numberFmt PCT1', /12[\.,]3/.test(numberFmt(12.34,'PCT1')), numberFmt(12.34,'PCT1'));
+  // new tests for local JSON shape
+  const sample = { years:['2019','2020','2021'], series:{ 'DT.DOD.DECT.CD':{ '2019':1000000,'2020':2000000 }}};
+  const yrs = sample.years; assert('local years array', Array.isArray(yrs)&&yrs.length===3, yrs.join(','));
+  const s = sample.series['DT.DOD.DECT.CD']; assert('series object exists', !!s && typeof s==='object', JSON.stringify(s));
+
+  const pass=results.filter(r=>r.pass).length; const fail=results.length-pass; els.testStatus.textContent=`Tests: ${pass} passed, ${fail} failed`; els.testStatus.className='pill '+(fail?'fail':'pass'); els.diagOut.innerHTML=results.map(r=>`${r.pass?'✅':'❌'} ${r.name} ${r.pass?'':`→ got: ${r.got}`}`).join('\n');
+}
+els.btnRunTests.addEventListener('click', runTests);
+
+// Init
+(async function init(){
+  try{
+    await loadCountries();
+    const c = els.select.value;
+    await renderTable(c);
+    runTests();
+  }catch(e){ showError('Failed to initialize. '+e.message); setStatus(''); }
+})();
+
+els.select.addEventListener('change', ()=> renderTable(els.select.value));
 </script>
 </body>
 </html>
+

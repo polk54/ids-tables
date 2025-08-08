@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -7,13 +7,13 @@
   <meta name="description" content="Rebuild of the IDS country table using the World Bank Data API (source=6), with a country selector and dynamic refresh." />
   <style>
     :root {
-      --bg: #0b0f14;
-      --card: #111824;
-      --ink: #e9eef7;
-      --muted: #a8b3c6;
-      --accent: #78a6ff;
-      --accent-2: #48d597;
-      --border: #1f2a3b;
+      --bg: #f7fafc;
+      --card: #ffffff;
+      --ink: #0b1220;
+      --muted: #5b667a;
+      --accent: #1b6ef3;
+      --accent-2: #0bb07b;
+      --border: #e3e8ef;
       --warn: #ffb020;
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
       --sans: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
@@ -21,7 +21,7 @@
     html, body { height: 100%; }
     body {
       margin: 0;
-      background: linear-gradient(180deg, #0b0f14 0%, #0b0f14 180px, #0e131b 100%);
+      background: var(--bg);
       color: var(--ink);
       font-family: var(--sans);
       -webkit-font-smoothing: antialiased;
@@ -29,7 +29,7 @@
     }
     header {
       position: sticky; top: 0; z-index: 5;
-      background: rgba(11,15,20,0.85);
+      background: #ffffffcc;
       backdrop-filter: blur(6px);
       border-bottom: 1px solid var(--border);
     }
@@ -65,7 +65,7 @@
     }
     table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; }
     thead th {
-      position: sticky; top: 0; z-index: 2; background: #0f1622; color: var(--muted);
+      position: sticky; top: 0; z-index: 2; background: #f3f6fb; color: #3b465a;
       font-weight: 600; text-align: right; padding: 12px 10px; border-bottom: 1px solid var(--border);
     }
     thead th:first-child { text-align: left; }
@@ -74,10 +74,10 @@
     }
     tbody th { text-align: left; font-weight: 500; }
 
-    tbody tr:nth-child(2n) td, tbody tr:nth-child(2n) th { background: #0e1622; }
-    tbody tr:hover td, tbody tr:hover th { background: #102135; }
+    tbody tr:nth-child(2n) td, tbody tr:nth-child(2n) th { background: #f9fbfe; }
+    tbody tr:hover td, tbody tr:hover th { background: #eef4ff; }
 
-    .group-row th { background: #0c1522; color: var(--accent); font-weight: 700; border-top: 1px solid var(--border); position: sticky; left: 0; z-index: 1; }
+    .group-row th { background: #eef4ff; color: var(--accent); font-weight: 700; border-top: 1px solid var(--border); position: sticky; left: 0; z-index: 1; }
 
     .sticky-first {
       position: sticky; left: 0; background: inherit; z-index: 1; max-width: 360px; min-width: 260px;
@@ -100,15 +100,8 @@
     details.diag summary { cursor: pointer; color: var(--accent); }
     .testpass { color: #72d572; }
     .testfail { color: #ff9884; }
-    pre.code { background: #0e1622; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; overflow: auto; }
+    pre.code { background: #f6f8fb; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; overflow: auto; }
   </style>
-
-<!--[if gte mso 9]><xml>
-<mso:CustomDocumentProperties>
-<mso:i008215bacac45029ee8cafff4c8e93b msdt:dt="string">DECDG - Development Data Group|2ae5ce6c-bf4c-4936-8a28-da4d57c09588</mso:i008215bacac45029ee8cafff4c8e93b>
-<mso:TaxCatchAll msdt:dt="string">5;#DECDG - Development Data Group</mso:TaxCatchAll>
-</mso:CustomDocumentProperties>
-</xml><![endif]-->
 </head>
 <body>
   <header>
@@ -251,7 +244,13 @@
         throw new Error('Failed to fetch country list');
       }
     }
-    const rows = data?.[1] || [];
+    let rows = data?.[1] || [];
+    // Keep only DRS debtor countries (LIC, LMC, UMC) and exclude aggregates (region.id === 'NA')
+    rows = rows.filter(c => {
+      const inc = c?.incomeLevel?.id;
+      const reg = c?.region?.id;
+      return (inc === 'LIC' || inc === 'LMC' || inc === 'UMC') && reg && reg !== 'NA';
+    });
     rows.sort((a, b) => a.name.localeCompare(b.name));
     els.select.innerHTML = rows.map(c => `<option value="${c.id}">${c.name} (${c.id})</option>`).join('');
     setStatus('');
@@ -322,7 +321,7 @@
     const tasks = [];
     for (const group of INDICATOR_GROUPS) {
       for (const r of group.rows) {
-        tasks.push(fetchSeriesWithFallback(country, r.code, yStart, yEnd).then(map => ({ code: r.code, unit: r.unit, map, name: r.name })));
+        tasks.push(fetchSeriesRobust(country, r.code, yStart, yEnd).then(map => ({ code: r.code, unit: r.unit, map, name: r.name })));
       }
     }
     let results;
@@ -403,7 +402,7 @@
     setTimeout(() => URL.revokeObjectURL(url), 2000);
   }
 
-  async function fetchSeriesWithFallback(country, code, yearStart, yearEnd) {
+  async function fetchSeries(country, code, yearStart, yearEnd) {
   // Try IDS 4D path first
   const url4D = `${WB_API}/sources/6/country/${country}/series/${code}/time/${yearStart}:${yearEnd}?format=json&per_page=500`;
   try {
@@ -421,7 +420,59 @@
     console.warn('4D fetch error for', code, e);
   }
   // Fallback to standard indicator API
-  return await fetchSeries(country, code, yearStart, yearEnd);
+  return await fetchSeriesIndicator(country, code, yearStart, yearEnd);
+}
+
+async function fetchSeriesIndicator(country, code, yearStart, yearEnd) {
+  const encodedCode = encodeURIComponent(code);
+  const url = `${WB_API}/country/${country}/indicator/${encodedCode}?format=json&source=6&date=${yearStart}:${yearEnd}&per_page=1000`;
+  const data = await getJSON(url);
+  const rows = data?.[1] || [];
+  const map = new Map();
+  for (const r of rows) { if (r.value !== null) map.set(String(r.date), Number(r.value)); }
+  return map;
+}
+
+async function fetchSeriesRobust(country, code, yearStart, yearEnd) {
+  const encodedCode = encodeURIComponent(code);
+  // 1) Try IDS 4D with counterpart-area/WLD (totals)
+  const url4dWLD = `${WB_API}/sources/6/country/${country}/series/${encodedCode}/counterpart-area/WLD/time/yr${yearStart}:yr${yearEnd}?format=json&per_page=2000`;
+  try {
+    const jd = await getJSON(url4dWLD);
+    const rows = jd?.source?.data || [];
+    const map = new Map();
+    for (const r of rows) {
+      const vars = r?.variable || [];
+      const hint = (v) => String(v?.id || v?.concept || '').toLowerCase();
+      const t = (vars.find(v => hint(v).includes('time')) || vars[1] || {}).value;
+      const y = t ? String(t) : '';
+      const v = r?.value;
+      if (y && y.length === 4 && !isNaN(+y) && v !== null && v !== undefined) map.set(y, Number(v));
+    }
+    if (map.size) return map;
+  } catch (e) {
+    console.warn('4D WLD fetch error for', code, e);
+  }
+  // 2) Try IDS 4D without counterpart (for series that don't have that dimension)
+  const url4d = `${WB_API}/sources/6/country/${country}/series/${encodedCode}/time/yr${yearStart}:yr${yearEnd}?format=json&per_page=2000`;
+  try {
+    const jd = await getJSON(url4d);
+    const rows = jd?.source?.data || [];
+    const map = new Map();
+    for (const r of rows) {
+      const vars = r?.variable || [];
+      const hint = (v) => String(v?.id || v?.concept || '').toLowerCase();
+      const t = (vars.find(v => hint(v).includes('time')) || vars[1] || {}).value;
+      const y = t ? String(t) : '';
+      const v = r?.value;
+      if (y && y.length === 4 && !isNaN(+y) && v !== null && v !== undefined) map.set(y, Number(v));
+    }
+    if (map.size) return map;
+  } catch (e2) {
+    console.warn('4D fetch error for', code, e2);
+  }
+  // 3) Fallback to standard indicator endpoint
+  return await fetchSeriesIndicator(country, code, yearStart, yearEnd);
 }
 
 // Wire up

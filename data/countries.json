@@ -1,0 +1,538 @@
+[
+  {
+    "id": "AFG",
+    "name": "Afghanistan"
+  },
+  {
+    "id": "AGO",
+    "name": "Angola"
+  },
+  {
+    "id": "ALB",
+    "name": "Albania"
+  },
+  {
+    "id": "ARG",
+    "name": "Argentina"
+  },
+  {
+    "id": "ARM",
+    "name": "Armenia"
+  },
+  {
+    "id": "AZE",
+    "name": "Azerbaijan"
+  },
+  {
+    "id": "BDI",
+    "name": "Burundi"
+  },
+  {
+    "id": "BEN",
+    "name": "Benin"
+  },
+  {
+    "id": "BFA",
+    "name": "Burkina Faso"
+  },
+  {
+    "id": "BGD",
+    "name": "Bangladesh"
+  },
+  {
+    "id": "BIH",
+    "name": "Bosnia and Herzegovina"
+  },
+  {
+    "id": "BLR",
+    "name": "Belarus"
+  },
+  {
+    "id": "BLZ",
+    "name": "Belize"
+  },
+  {
+    "id": "BOL",
+    "name": "Bolivia"
+  },
+  {
+    "id": "BRA",
+    "name": "Brazil"
+  },
+  {
+    "id": "BTN",
+    "name": "Bhutan"
+  },
+  {
+    "id": "BWA",
+    "name": "Botswana"
+  },
+  {
+    "id": "CAF",
+    "name": "Central African Republic"
+  },
+  {
+    "id": "CHN",
+    "name": "China"
+  },
+  {
+    "id": "CIV",
+    "name": "Cote d'Ivoire"
+  },
+  {
+    "id": "CMR",
+    "name": "Cameroon"
+  },
+  {
+    "id": "COD",
+    "name": "Congo, Dem. Rep."
+  },
+  {
+    "id": "COG",
+    "name": "Congo, Rep."
+  },
+  {
+    "id": "COL",
+    "name": "Colombia"
+  },
+  {
+    "id": "COM",
+    "name": "Comoros"
+  },
+  {
+    "id": "CPV",
+    "name": "Cabo Verde"
+  },
+  {
+    "id": "CRI",
+    "name": "Costa Rica"
+  },
+  {
+    "id": "DJI",
+    "name": "Djibouti"
+  },
+  {
+    "id": "DMA",
+    "name": "Dominica"
+  },
+  {
+    "id": "DOM",
+    "name": "Dominican Republic"
+  },
+  {
+    "id": "DZA",
+    "name": "Algeria"
+  },
+  {
+    "id": "EAP",
+    "name": "East Asia & Pacific (excluding high income)"
+  },
+  {
+    "id": "ECA",
+    "name": "Europe & Central Asia (excluding high income)"
+  },
+  {
+    "id": "ECU",
+    "name": "Ecuador"
+  },
+  {
+    "id": "EGY",
+    "name": "Egypt, Arab Rep."
+  },
+  {
+    "id": "ERI",
+    "name": "Eritrea"
+  },
+  {
+    "id": "ETH",
+    "name": "Ethiopia"
+  },
+  {
+    "id": "FJI",
+    "name": "Fiji"
+  },
+  {
+    "id": "GAB",
+    "name": "Gabon"
+  },
+  {
+    "id": "GEO",
+    "name": "Georgia"
+  },
+  {
+    "id": "GHA",
+    "name": "Ghana"
+  },
+  {
+    "id": "GIN",
+    "name": "Guinea"
+  },
+  {
+    "id": "GMB",
+    "name": "Gambia, The"
+  },
+  {
+    "id": "GNB",
+    "name": "Guinea-Bissau"
+  },
+  {
+    "id": "GRD",
+    "name": "Grenada"
+  },
+  {
+    "id": "GTM",
+    "name": "Guatemala"
+  },
+  {
+    "id": "GUY",
+    "name": "Guyana"
+  },
+  {
+    "id": "HND",
+    "name": "Honduras"
+  },
+  {
+    "id": "HTI",
+    "name": "Haiti"
+  },
+  {
+    "id": "IDA",
+    "name": "IDA total"
+  },
+  {
+    "id": "IDN",
+    "name": "Indonesia"
+  },
+  {
+    "id": "IDX",
+    "name": "IDA only"
+  },
+  {
+    "id": "IND",
+    "name": "India"
+  },
+  {
+    "id": "IRN",
+    "name": "Iran, Islamic Rep."
+  },
+  {
+    "id": "IRQ",
+    "name": "Iraq"
+  },
+  {
+    "id": "JAM",
+    "name": "Jamaica"
+  },
+  {
+    "id": "JOR",
+    "name": "Jordan"
+  },
+  {
+    "id": "KAZ",
+    "name": "Kazakhstan"
+  },
+  {
+    "id": "KEN",
+    "name": "Kenya"
+  },
+  {
+    "id": "KGZ",
+    "name": "Kyrgyz Republic"
+  },
+  {
+    "id": "KHM",
+    "name": "Cambodia"
+  },
+  {
+    "id": "LAC",
+    "name": "Latin America & Caribbean (excluding high income)"
+  },
+  {
+    "id": "LAO",
+    "name": "Lao PDR"
+  },
+  {
+    "id": "LBN",
+    "name": "Lebanon"
+  },
+  {
+    "id": "LBR",
+    "name": "Liberia"
+  },
+  {
+    "id": "LCA",
+    "name": "St. Lucia"
+  },
+  {
+    "id": "LDC",
+    "name": "Least developed countries: UN classification"
+  },
+  {
+    "id": "LIC",
+    "name": "Low income"
+  },
+  {
+    "id": "LKA",
+    "name": "Sri Lanka"
+  },
+  {
+    "id": "LMC",
+    "name": "Lower middle income"
+  },
+  {
+    "id": "LMY",
+    "name": "Low & middle income"
+  },
+  {
+    "id": "LSO",
+    "name": "Lesotho"
+  },
+  {
+    "id": "MAR",
+    "name": "Morocco"
+  },
+  {
+    "id": "MDA",
+    "name": "Moldova"
+  },
+  {
+    "id": "MDG",
+    "name": "Madagascar"
+  },
+  {
+    "id": "MDV",
+    "name": "Maldives"
+  },
+  {
+    "id": "MEX",
+    "name": "Mexico"
+  },
+  {
+    "id": "MIC",
+    "name": "Middle income"
+  },
+  {
+    "id": "MKD",
+    "name": "North Macedonia"
+  },
+  {
+    "id": "MLI",
+    "name": "Mali"
+  },
+  {
+    "id": "MMR",
+    "name": "Myanmar"
+  },
+  {
+    "id": "MNA",
+    "name": "Middle East, North Africa, Afghanistan & Pakistan (excluding high income)"
+  },
+  {
+    "id": "MNE",
+    "name": "Montenegro"
+  },
+  {
+    "id": "MNG",
+    "name": "Mongolia"
+  },
+  {
+    "id": "MOZ",
+    "name": "Mozambique"
+  },
+  {
+    "id": "MRT",
+    "name": "Mauritania"
+  },
+  {
+    "id": "MUS",
+    "name": "Mauritius"
+  },
+  {
+    "id": "MWI",
+    "name": "Malawi"
+  },
+  {
+    "id": "NER",
+    "name": "Niger"
+  },
+  {
+    "id": "NGA",
+    "name": "Nigeria"
+  },
+  {
+    "id": "NIC",
+    "name": "Nicaragua"
+  },
+  {
+    "id": "NPL",
+    "name": "Nepal"
+  },
+  {
+    "id": "PAK",
+    "name": "Pakistan"
+  },
+  {
+    "id": "PER",
+    "name": "Peru"
+  },
+  {
+    "id": "PHL",
+    "name": "Philippines"
+  },
+  {
+    "id": "PNG",
+    "name": "Papua New Guinea"
+  },
+  {
+    "id": "PRY",
+    "name": "Paraguay"
+  },
+  {
+    "id": "RWA",
+    "name": "Rwanda"
+  },
+  {
+    "id": "SAS",
+    "name": "South Asia"
+  },
+  {
+    "id": "SDN",
+    "name": "Sudan"
+  },
+  {
+    "id": "SEN",
+    "name": "Senegal"
+  },
+  {
+    "id": "SLB",
+    "name": "Solomon Islands"
+  },
+  {
+    "id": "SLE",
+    "name": "Sierra Leone"
+  },
+  {
+    "id": "SLV",
+    "name": "El Salvador"
+  },
+  {
+    "id": "SOM",
+    "name": "Somalia"
+  },
+  {
+    "id": "SRB",
+    "name": "Serbia"
+  },
+  {
+    "id": "SSA",
+    "name": "Sub-Saharan Africa (excluding high income)"
+  },
+  {
+    "id": "STP",
+    "name": "Sao Tome and Principe"
+  },
+  {
+    "id": "SUR",
+    "name": "Suriname"
+  },
+  {
+    "id": "SWZ",
+    "name": "Eswatini"
+  },
+  {
+    "id": "SYR",
+    "name": "Syrian Arab Republic"
+  },
+  {
+    "id": "TCD",
+    "name": "Chad"
+  },
+  {
+    "id": "TGO",
+    "name": "Togo"
+  },
+  {
+    "id": "THA",
+    "name": "Thailand"
+  },
+  {
+    "id": "TJK",
+    "name": "Tajikistan"
+  },
+  {
+    "id": "TKM",
+    "name": "Turkmenistan"
+  },
+  {
+    "id": "TLS",
+    "name": "Timor-Leste"
+  },
+  {
+    "id": "TON",
+    "name": "Tonga"
+  },
+  {
+    "id": "TUN",
+    "name": "Tunisia"
+  },
+  {
+    "id": "TUR",
+    "name": "Turkiye"
+  },
+  {
+    "id": "TZA",
+    "name": "Tanzania"
+  },
+  {
+    "id": "UGA",
+    "name": "Uganda"
+  },
+  {
+    "id": "UKR",
+    "name": "Ukraine"
+  },
+  {
+    "id": "UMC",
+    "name": "Upper middle income"
+  },
+  {
+    "id": "UZB",
+    "name": "Uzbekistan"
+  },
+  {
+    "id": "VCT",
+    "name": "St. Vincent and the Grenadines"
+  },
+  {
+    "id": "VNM",
+    "name": "Viet Nam"
+  },
+  {
+    "id": "VUT",
+    "name": "Vanuatu"
+  },
+  {
+    "id": "WSM",
+    "name": "Samoa"
+  },
+  {
+    "id": "XKX",
+    "name": "Kosovo"
+  },
+  {
+    "id": "YEM",
+    "name": "Yemen, Rep."
+  },
+  {
+    "id": "ZAF",
+    "name": "South Africa"
+  },
+  {
+    "id": "ZMB",
+    "name": "Zambia"
+  },
+  {
+    "id": "ZWE",
+    "name": "Zimbabwe"
+  }
+]

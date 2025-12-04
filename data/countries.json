@@ -104,10 +104,6 @@
     "name": "Cabo Verde"
   },
   {
-    "id": "CRI",
-    "name": "Costa Rica"
-  },
-  {
     "id": "DJI",
     "name": "Djibouti"
   },
@@ -174,6 +170,10 @@
   {
     "id": "GNB",
     "name": "Guinea-Bissau"
+  },
+  {
+    "id": "GNQ",
+    "name": "Equatorial Guinea"
   },
   {
     "id": "GRD",
